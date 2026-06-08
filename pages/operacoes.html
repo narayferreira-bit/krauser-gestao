@@ -1,0 +1,625 @@
+<!DOCTYPE html><html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Krauser Gestão - Operações</title><style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#f4f6f9;
+}
+
+.topo{
+background:#0B3D91;
+color:white;
+padding:15px 20px;
+}
+
+.topo-conteudo{
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.usuario{
+background:rgba(255,255,255,.15);
+padding:10px 15px;
+border-radius:10px;
+font-weight:bold;
+}
+
+.container{
+max-width:1400px;
+margin:auto;
+padding:15px;
+}
+
+.card{
+background:white;
+padding:15px;
+border-radius:12px;
+margin-bottom:15px;
+box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+
+h3{
+margin-bottom:10px;
+color:#0B3D91;
+}
+
+input,
+select{
+width:100%;
+padding:10px;
+border:1px solid #ccc;
+border-radius:8px;
+}
+
+button{
+cursor:pointer;
+border:none;
+border-radius:10px;
+padding:10px 15px;
+}
+
+.btn{
+background:#F39C12;
+color:white;
+font-weight:bold;
+}
+
+.btn-remover{
+background:#F39C12;
+color:white;
+width:55px;
+height:55px;
+font-size:22px;
+font-weight:bold;
+border-radius:12px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th{
+background:#0B3D91;
+color:white;
+}
+
+th,td{
+border:1px solid #ddd;
+padding:8px;
+text-align:center;
+}
+
+.painel{
+display:flex;
+gap:15px;
+}
+
+.box{
+flex:1;
+background:#eef5ff;
+padding:20px;
+border-radius:12px;
+text-align:center;
+}
+
+.box h1{
+font-size:38px;
+margin-top:10px;
+}
+
+.troco{
+background:#dff7df;
+}
+
+.troco h1{
+font-size:65px;
+font-weight:bold;
+color:green;
+}
+
+.finalizar{
+width:100%;
+background:#F39C12;
+color:white;
+font-size:20px;
+font-weight:bold;
+padding:15px;
+margin-top:10px;
+}
+
+.cliente-grid{
+display:grid;
+grid-template-columns:2fr 1fr 1fr;
+gap:10px;
+}
+
+</style></head><body><div class="topo"><div class="topo-conteudo"><h2>Krauser Gestão</h2><div class="usuario">
+👤 Administrador
+</div></div></div><div class="container"><div class="card"><h3>Cliente</h3><div class="cliente-grid"><input id="cliente" placeholder="Nome Completo"><input id="cpf" placeholder="CPF"><input id="telefone" placeholder="Telefone"></div></div><div class="card"><h3>Itens do Atendimento</h3><table><thead><tr>
+<th>Categoria</th>
+<th>Serviço</th>
+<th>Qtd</th>
+<th>Valor/Operação</th>
+<th>Taxa</th>
+<th>Total</th>
+<th>Ação</th>
+</tr></thead><tbody id="itens"></tbody></table><br><button class="btn" onclick="addItem()">
+➕ Adicionar Item
+</button></div><div class="card"><h3>Pagamentos</h3><table><thead><tr>
+<th>Forma</th>
+<th>Valor</th>
+<th>Ação</th>
+</tr></thead><tbody id="pagamentos"></tbody></table><br><button class="btn" onclick="addPagamento()">
+➕ Adicionar Pagamento
+</button></div><div class="card"><h3>📎 Comprovante</h3><input
+type="file"
+id="comprovante"
+accept=".pdf,.jpg,.jpeg,.png">
+
+</div><div class="card"><div class="painel"><div class="box">
+<div>TOTAL</div>
+<h1 id="total">R$ 0,00</h1>
+</div><div class="box">
+<div>CLIENTE DEU</div>
+<h1 id="deu">R$ 0,00</h1>
+</div><div class="box troco">
+<div>TROCO</div>
+<h1 id="troco">R$ 0,00</h1>
+</div></div></div><div class="card"><button class="btn">
+💾 Salvar
+</button><button class="btn" onclick="window.print()">
+🖨️ Imprimir
+</button><button class="finalizar" onclick="finalizar()">
+✅ Finalizar Atendimento
+</button></div>
+<script>
+
+const servicos = {
+
+"Agendamentos":20,
+"Acessar Site e Pegar Código de Barras":1,
+"Boleto":4,
+"Baixa MEI":20,
+"Boletim de Ocorrência":20,
+"Criação Carteira de Trabalho Digital":30,
+"Contra-cheque":5,
+"Comprovante de Residência DETRAN":10,
+"Currículo":12,
+"Criação MEI + GOV":80,
+"Consulta":5,
+"Declaração MEI":35,
+"Digitação":15,
+"BRAT":35,
+"Download Música":1,
+"Download Álbum":5,
+"Entrada Aposentadoria":120,
+"Enviar E-mail":3.5,
+"Edição por Folha":2,
+"Fotos (10 Fotos)":15,
+"Formatação":70,
+"Impressão":4,
+"Impressão INSS":5,
+"Impressão Alta Qualidade":5,
+"Instalação de Aplicativo":10,
+"Instalação de Office":25,
+"Multa Eleitoral":10,
+"Nada Consta":15,
+"Troca de Titularidade Light":25,
+"Título de Eleitor":30,
+"Senha GOV / Recuperação de Senha":25,
+"Scanner":3,
+"Xerox":1,
+"Agendamento Online":20,
+"Consulta e Pesquisa Online":5,
+"Emissão de 2ª Via de Conta":1,
+"Cadastro GOV":25,
+"Recuperação de Senha GOV":25,
+"Criação de E-mail":10,
+"Atualização Cadastral":0,
+"Serviços de Internet Diversos":0
+
+};
+
+function taxaPix(v){
+
+if(v<=150)return 6;
+if(v<=250)return 7;
+if(v<=400)return 8;
+if(v<=600)return 9;
+if(v<=900)return 10;
+if(v<=1000)return 12;
+if(v<=1200)return 14;
+if(v<=1400)return 16;
+if(v<=1800)return 18;
+if(v<=2400)return 20;
+
+return 25;
+
+}
+
+function taxaBoleto(v){
+
+if(v<=150)return 4;
+if(v<=300)return 4.5;
+if(v<=600)return 5.5;
+if(v<=800)return 7;
+if(v<=1000)return 10;
+if(v<=1400)return 15;
+if(v<=1800)return 18;
+
+return 22;
+
+}
+
+function addItem(){
+
+let tr=document.createElement("tr");
+
+tr.innerHTML=`
+
+<td>
+<select onchange="trocarCategoria(this)">
+<option>🌐 Serviços Online</option>
+<option>💰 Pagamento de Contas</option>
+</select>
+</td>
+
+<td></td>
+
+<td>
+<input type="number" value="1" min="1" onchange="calcular()">
+</td>
+
+<td>
+<input type="number" value="0" onchange="calcular()">
+</td>
+
+<td>
+<input readonly>
+</td>
+
+<td>
+<input readonly>
+</td>
+
+<td>
+<button
+class="btn-remover"
+onclick="this.closest('tr').remove();calcular()">
+✖
+</button>
+</td>
+
+`;
+
+document.getElementById("itens")
+.appendChild(tr);
+
+trocarCategoria(
+tr.querySelector("select")
+);
+
+}
+
+function trocarCategoria(sel){
+
+let tr=sel.closest("tr");
+
+let tdServico=
+tr.children[1];
+
+if(
+sel.value==="🌐 Serviços Online"
+){
+
+let options="";
+
+for(let serv in servicos){
+
+options +=
+`<option>${serv}</option>`;
+
+}
+
+tdServico.innerHTML=
+`<select onchange="calcular()">
+${options}
+</select>`;
+
+tr.children[3]
+.querySelector("input")
+.readOnly=true;
+
+}else{
+
+tdServico.innerHTML=`
+
+<select onchange="calcular()">
+
+<option>Saque Pix</option>
+
+<option>Depósito Pix</option>
+
+<option>Pagamento de Boleto</option>
+
+</select>
+
+`;
+
+tr.children[3]
+.querySelector("input")
+.readOnly=false;
+
+}
+
+calcular();
+
+}
+
+function addPagamento(){
+
+let tr=document.createElement("tr");
+
+tr.innerHTML=`
+
+<td>
+
+<select>
+
+<option>Dinheiro</option>
+<option>Pix</option>
+<option>Débito</option>
+<option>Crédito</option>
+
+</select>
+
+</td>
+
+<td>
+
+<input
+type="number"
+value="0"
+oninput="calcular()">
+
+</td>
+
+<td>
+
+<button
+class="btn-remover"
+onclick="this.closest('tr').remove();calcular()">
+✖
+</button>
+
+</td>
+
+`;
+
+document
+.getElementById("pagamentos")
+.appendChild(tr);
+
+}
+
+function calcular(){
+
+let totalGeral=0;
+
+document
+.querySelectorAll("#itens tr")
+.forEach(tr=>{
+
+let categoria=
+tr.children[0]
+.querySelector("select")
+.value;
+
+let qtd=
+Number(
+tr.children[2]
+.querySelector("input")
+.value
+)||0;
+
+let valorInput=
+tr.children[3]
+.querySelector("input");
+
+let taxaInput=
+tr.children[4]
+.querySelector("input");
+
+let totalInput=
+tr.children[5]
+.querySelector("input");
+
+let totalLinha=0;
+
+if(
+categoria==="🌐 Serviços Online"
+){
+
+let servico=
+tr.children[1]
+.querySelector("select")
+.value;
+
+let valor=
+servicos[servico] || 0;
+
+valorInput.value=valor;
+
+taxaInput.value="";
+
+totalLinha=
+valor*qtd;
+
+}else{
+
+let valor=
+Number(valorInput.value)||0;
+
+let operacao=
+tr.children[1]
+.querySelector("select")
+.value;
+
+let taxa=0;
+
+if(
+operacao==="Pagamento de Boleto"
+){
+
+taxa=
+taxaBoleto(valor);
+
+}else{
+
+taxa=
+taxaPix(valor);
+
+}
+
+taxaInput.value=
+taxa.toFixed(2);
+
+totalLinha=
+valor+taxa;
+
+}
+
+totalInput.value=
+totalLinha.toFixed(2);
+
+totalGeral+=
+totalLinha;
+
+});
+
+let pago=0;
+
+document
+.querySelectorAll("#pagamentos input")
+.forEach(input=>{
+
+pago +=
+Number(input.value)||0;
+
+});
+
+document
+.getElementById("total")
+.innerText=
+"R$ "+totalGeral.toFixed(2);
+
+document
+.getElementById("deu")
+.innerText=
+"R$ "+pago.toFixed(2);
+
+let troco =
+pago-totalGeral;
+
+const trocoEl =
+document.getElementById("troco");
+
+trocoEl.innerText=
+"R$ "+troco.toFixed(2);
+
+if(troco < 0){
+
+trocoEl.style.color="red";
+
+}else if(troco > 0){
+
+trocoEl.style.color="green";
+
+}else{
+
+trocoEl.style.color="#0B3D91";
+
+}
+
+}
+
+function salvarAtendimento(){
+
+const atendimento = {
+
+cliente:
+document.getElementById("cliente").value,
+
+cpf:
+document.getElementById("cpf").value,
+
+telefone:
+document.getElementById("telefone").value,
+
+data:
+new Date().toLocaleString(),
+
+total:
+document.getElementById("total").innerText,
+
+usuario:
+"Administrador"
+
+};
+
+let historico =
+JSON.parse(
+localStorage.getItem("historico")
+|| "[]"
+);
+
+historico.push(atendimento);
+
+localStorage.setItem(
+"historico",
+JSON.stringify(historico)
+);
+
+}
+
+function finalizar(){
+
+salvarAtendimento();
+
+alert(
+"Atendimento finalizado com sucesso!"
+);
+
+document.getElementById("cliente").value="";
+document.getElementById("cpf").value="";
+document.getElementById("telefone").value="";
+document.getElementById("comprovante").value="";
+
+document.getElementById("itens").innerHTML="";
+document.getElementById("pagamentos").innerHTML="";
+
+document.getElementById("total").innerText="R$ 0,00";
+document.getElementById("deu").innerText="R$ 0,00";
+document.getElementById("troco").innerText="R$ 0,00";
+
+addItem();
+addPagamento();
+
+}
+
+addItem();
+addPagamento();
+
+</script></body>
+</html>

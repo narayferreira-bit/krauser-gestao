@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Krauser Gestão - Clientes</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#f4f6f9;
+}
+
+.topo{
+background:#0B3D91;
+color:white;
+padding:15px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.container{
+padding:20px;
+max-width:1400px;
+margin:auto;
+}
+
+.card{
+background:white;
+padding:15px;
+border-radius:12px;
+margin-bottom:15px;
+box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+
+h3{
+color:#0B3D91;
+margin-bottom:10px;
+}
+
+input{
+width:100%;
+padding:10px;
+border:1px solid #ccc;
+border-radius:8px;
+}
+
+button{
+border:none;
+padding:10px 15px;
+border-radius:8px;
+cursor:pointer;
+}
+
+.btn{
+background:#F29C1F;
+color:white;
+}
+
+.btn-remover{
+background:#dc3545;
+color:white;
+}
+
+.grid{
+display:grid;
+grid-template-columns:2fr 1fr 1fr;
+gap:10px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th{
+background:#0B3D91;
+color:white;
+}
+
+th,td{
+border:1px solid #ddd;
+padding:10px;
+text-align:center;
+}
+
+.pesquisa{
+margin-bottom:15px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="topo">
+<h2>Krauser Gestão - Clientes</h2>
+</div>
+
+<div class="container">
+
+<div class="card">
+
+<h3>Novo Cliente</h3>
+
+<div class="grid">
+
+<input id="nome" placeholder="Nome Completo">
+
+<input id="cpf" placeholder="CPF">
+
+<input id="telefone" placeholder="Telefone">
+
+</div>
+
+<br>
+
+<button class="btn" onclick="salvarCliente()">
+💾 Salvar Cliente
+</button>
+
+</div>
+
+<div class="card">
+
+<h3>Pesquisar Cliente</h3>
+
+<input
+class="pesquisa"
+id="pesquisa"
+placeholder="Pesquisar por nome, CPF ou telefone"
+onkeyup="listarClientes()">
+
+<table>
+
+<thead>
+<tr>
+<th>Nome</th>
+<th>CPF</th>
+<th>Telefone</th>
+<th>Ação</th>
+</tr>
+</thead>
+
+<tbody id="listaClientes"></tbody>
+
+</table>
+
+</div>
+
+</div>
+<script>
+
+function obterClientes(){
+return JSON.parse(localStorage.getItem("clientes")) || [];
+}
+
+function salvarClientes(lista){
+localStorage.setItem(
+"clientes",
+JSON.stringify(lista)
+);
+}
+
+function salvarCliente(){
+
+let nome =
+document.getElementById("nome").value.trim();
+
+let cpf =
+document.getElementById("cpf").value.trim();
+
+let telefone =
+document.getElementById("telefone").value.trim();
+
+if(nome===""){
+alert("Informe o nome do cliente");
+return;
+}
+
+let clientes = obterClientes();
+
+clientes.push({
+id: Date.now(),
+nome,
+cpf,
+telefone
+});
+
+salvarClientes(clientes);
+
+document.getElementById("nome").value="";
+document.getElementById("cpf").value="";
+document.getElementById("telefone").value="";
+
+listarClientes();
+
+alert("Cliente cadastrado com sucesso!");
+
+}
+
+function excluirCliente(id){
+
+if(!confirm("Deseja excluir este cliente?")){
+return;
+}
+
+let clientes = obterClientes();
+
+clientes =
+clientes.filter(
+c => c.id !== id
+);
+
+salvarClientes(clientes);
+
+listarClientes();
+
+}
+
+function listarClientes(){
+
+let pesquisa =
+document.getElementById("pesquisa")
+.value
+.toLowerCase();
+
+let clientes =
+obterClientes();
+
+clientes =
+clientes.filter(c =>
+
+c.nome.toLowerCase().includes(pesquisa) ||
+
+(c.cpf || "")
+.toLowerCase()
+.includes(pesquisa)
+
+||
+
+(c.telefone || "")
+.toLowerCase()
+.includes(pesquisa)
+
+);
+
+let html="";
+
+clientes.forEach(cliente=>{
+
+html += `
+
+<tr>
+
+<td>${cliente.nome}</td>
+
+<td>${cliente.cpf}</td>
+
+<td>${cliente.telefone}</td>
+
+<td>
+
+<button
+class="btn-remover"
+onclick="excluirCliente(${cliente.id})">
+
+Excluir
+
+</button>
+
+</td>
+
+</tr>
+
+`;
+
+});
+
+document.getElementById(
+"listaClientes"
+).innerHTML = html;
+
+}
+
+listarClientes();
+
+</script>
+
+</body>
+</html>

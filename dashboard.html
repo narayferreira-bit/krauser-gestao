@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Krauser Gestão - Dashboard</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, sans-serif;
+}
+
+body{
+    background:#f4f6f9;
+}
+
+.header{
+    background:#0B3D91;
+    color:white;
+    padding:20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.logo{
+    font-size:28px;
+    font-weight:bold;
+}
+
+.usuario{
+    font-size:16px;
+}
+
+.dashboard{
+    padding:20px;
+}
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;
+}
+
+.card{
+    background:white;
+    border-radius:15px;
+    padding:20px;
+    box-shadow:0 3px 10px rgba(0,0,0,0.1);
+}
+
+.card h3{
+    color:#0B3D91;
+    margin-bottom:10px;
+}
+
+.valor{
+    font-size:28px;
+    font-weight:bold;
+    color:#FF9800;
+}
+
+.busca{
+    margin-top:30px;
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    box-shadow:0 3px 10px rgba(0,0,0,0.1);
+}
+
+.busca h2{
+    margin-bottom:15px;
+    color:#0B3D91;
+}
+
+.busca input{
+    width:100%;
+    padding:12px;
+    border:1px solid #ccc;
+    border-radius:8px;
+}
+
+.menu{
+    margin-top:30px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:15px;
+}
+
+.botao{
+    background:#FF9800;
+    color:white;
+    text-align:center;
+    padding:15px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.botao:hover{
+    opacity:0.9;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <div class="logo">Krauser Gestão</div>
+    <div class="usuario">Administrador</div>
+</div>
+
+<div class="dashboard">
+
+<div class="cards">
+
+<div class="botao" onclick="window.location.href='pages/operacoes.html'">
+➕ Nova Operação
+</div>
+
+<div class="card" style="grid-column: span 2;">
+<h3>💰 Caixa Atual</h3>
+<div class="valor" style="font-size:40px;">
+R$ 0,00
+</div>
+</div>
+
+<div class="card">
+<h3>📲 Pix Hoje</h3>
+<div class="valor">R$ 0,00</div>
+</div>
+
+<div class="card">
+<h3>📄 Boletos Hoje</h3>
+<div class="valor">0</div>
+</div>
+
+<div class="card">
+<h3>🛒 Produtos Vendidos</h3>
+<div class="valor">0</div>
+</div>
+
+<div class="card">
+<h3>🖨️ Serviços Prestados</h3>
+<div class="valor">0</div>
+</div>
+
+<div class="card">
+<h3>💵 Dinheiro Hoje</h3>
+<div class="valor">R$ 0,00</div>
+</div>
+
+<div class="card">
+<h3>⚠️ Divergência de Caixa</h3>
+<div class="valor">R$ 0,00</div>
+</div>
+
+<div class="card">
+<h3>📈 Lucro do Dia</h3>
+<div class="valor">R$ 0,00</div>
+</div>
+
+</div>
+
+<div class="busca">
+
+<h2>🔍 Pesquisa Global</h2>
+
+<input type="text" placeholder="Pesquisar cliente, telefone ou protocolo">
+
+</div>
+
+<div class="menu">
+
+<div class="botao">💰 Caixa</div>
+
+<div class="botao">📄 Boletos</div>
+
+<div class="botao">📲 Pix</div>
+
+<div class="botao">🛒 Produtos</div>
+
+<div class="botao">📦 Estoque</div>
+
+<div class="botao">🖨️ Serviços</div>
+
+<div class="botao">👥 Clientes</div>
+
+<div class="botao">📊 Relatórios</div>
+
+<div class="botao">⚙️ Configurações</div>
+
+
+</body>
+</html>
