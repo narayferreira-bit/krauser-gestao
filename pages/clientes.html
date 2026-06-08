@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -158,115 +159,134 @@ onkeyup="listarClientes()">
 </div>
 
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
 
-function obterClientes(){
-return JSON.parse(localStorage.getItem("clientes")) || [];
-}
+const supabaseUrl = "https://fdqdbqoljhpzwlkgyddt.supabase.co";
 
-function salvarClientes(lista){
-localStorage.setItem(
-"clientes",
-JSON.stringify(lista)
+const supabaseKey = "sb_publishable_d0pxxCOcLcLLcsmBxy0A0g_T805lPUg";
+
+const supabase = window.supabase.createClient(
+supabaseUrl,
+supabaseKey
 );
-}
 
-function salvarCliente(){
+async function salvarCliente(){
 
-let nome =
+const nome =
 document.getElementById("nome").value.trim();
 
-let cpf =
+const cpf =
 document.getElementById("cpf").value.trim();
 
-let telefone =
+const telefone =
 document.getElementById("telefone").value.trim();
 
-if(nome===""){
+if(nome === ""){
 alert("Informe o nome do cliente");
 return;
 }
 
-let clientes = obterClientes();
-
-clientes.push({
-id: Date.now(),
+const { error } = await supabase
+.from("clientes")
+.insert([
+{
 nome,
 cpf,
 telefone
-});
+}
+]);
 
-salvarClientes(clientes);
+if(error){
+alert("Erro ao salvar cliente");
+console.log(error);
+return;
+}
 
-document.getElementById("nome").value="";
-document.getElementById("cpf").value="";
-document.getElementById("telefone").value="";
-
-listarClientes();
+document.getElementById("nome").value = "";
+document.getElementById("cpf").value = "";
+document.getElementById("telefone").value = "";
 
 alert("Cliente cadastrado com sucesso!");
 
+listarClientes();
+
 }
 
-function excluirCliente(id){
+async function excluirCliente(id){
 
 if(!confirm("Deseja excluir este cliente?")){
 return;
 }
 
-let clientes = obterClientes();
+const { error } = await supabase
+.from("clientes")
+.delete()
+.eq("id", id);
 
-clientes =
-clientes.filter(
-c => c.id !== id
-);
-
-salvarClientes(clientes);
+if(error){
+alert("Erro ao excluir cliente");
+console.log(error);
+return;
+}
 
 listarClientes();
 
 }
 
-function listarClientes(){
+async function listarClientes(){
 
-let pesquisa =
+const pesquisa =
 document.getElementById("pesquisa")
 .value
 .toLowerCase();
 
-let clientes =
-obterClientes();
+const { data, error } = await supabase
+.from("clientes")
+.select("*")
+.order("id",{ascending:false});
 
-clientes =
-clientes.filter(c =>
+if(error){
+console.log(error);
+return;
+}
 
-c.nome.toLowerCase().includes(pesquisa) ||
+let clientes = data || [];
 
-(c.cpf || "")
+clientes = clientes.filter(cliente =>
+
+(cliente.nome || "")
 .toLowerCase()
 .includes(pesquisa)
 
 ||
 
-(c.telefone || "")
+(cliente.cpf || "")
+.toLowerCase()
+.includes(pesquisa)
+
+||
+
+(cliente.telefone || "")
 .toLowerCase()
 .includes(pesquisa)
 
 );
 
-let html="";
+let html = "";
 
 clientes.forEach(cliente=>{
 
 html += `
-
 <tr>
 
-<td>${cliente.nome}</td>
+<td>${cliente.nome || ""}</td>
 
-<td>${cliente.cpf}</td>
+<td>${cliente.cpf || ""}</td>
 
-<td>${cliente.telefone}</td>
+<td>${cliente.telefone || ""}</td>
 
 <td>
 
@@ -281,7 +301,6 @@ Excluir
 </td>
 
 </tr>
-
 `;
 
 });
