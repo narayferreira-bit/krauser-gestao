@@ -1,13 +1,6 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-
-<head>
+<!DOCTYPE html><html lang="pt-BR"><head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Krauser Gestão - Clientes</title>
-
-<style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Krauser Gestão - Clientes</title><style>
 
 *{
 margin:0;
@@ -98,77 +91,33 @@ text-align:center;
 margin-bottom:15px;
 }
 
-</style>
-</head>
-
-<body>
-
-<div class="topo">
+</style></head><body><div class="topo">
 <h2>Krauser Gestão - Clientes</h2>
-</div>
-
-<div class="container">
-
-<div class="card">
-
-<h3>Novo Cliente</h3>
-
-<div class="grid">
-
-<input id="nome" placeholder="Nome Completo">
-
-<input id="cpf" placeholder="CPF">
-
-<input id="telefone" placeholder="Telefone">
-
-</div>
-
-<br>
-
-<button class="btn" onclick="salvarCliente()">
+</div><div class="container"><div class="card"><h3>Novo Cliente</h3><div class="grid"><input id="nome" placeholder="Nome Completo"><input id="cpf" placeholder="000.000.000-00"><input id="telefone" placeholder="(00) 00000-0000"></div><br><button class="btn" onclick="salvarCliente()">
 💾 Salvar Cliente
-</button>
-
-</div>
-
-<div class="card">
-
-<h3>Pesquisar Cliente</h3>
-
-<input
+</button></div><div class="card"><h3>Pesquisar Cliente</h3><input
 class="pesquisa"
 id="pesquisa"
 placeholder="Pesquisar por nome, CPF ou telefone"
 onkeyup="listarClientes()">
 
-<table>
-
-<thead>
+<table><thead>
 <tr>
 <th>Nome</th>
 <th>CPF</th>
 <th>Telefone</th>
 <th>Ação</th>
 </tr>
-</thead>
+</thead><tbody id="listaClientes"></tbody></table></div></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
 
-<tbody id="listaClientes"></tbody>
+const supabaseUrl =
+"https://fdqdbqoljhpzwlkgyddt.supabase.co";
 
-</table>
+const supabaseKey =
+"sb_publishable_d0pxxCOcLcLLcsmBxy0A0g_T805lPUg";
 
-</div>
-
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script>
-
-const supabaseUrl = "https://fdqdbqoljhpzwlkgyddt.supabase.co";
-
-const supabaseKey = "sb_publishable_d0pxxCOcLcLLcsmBxy0A0g_T805lPUg";
-
-const supabase = window.supabase.createClient(
+const banco =
+window.supabase.createClient(
 supabaseUrl,
 supabaseKey
 );
@@ -189,7 +138,8 @@ alert("Informe o nome do cliente");
 return;
 }
 
-const { error } = await supabase
+const { data, error } =
+await banco
 .from("clientes")
 .insert([
 {
@@ -197,11 +147,14 @@ nome,
 cpf,
 telefone
 }
-]);
+])
+.select();
+
+console.log(data);
+console.log(error);
 
 if(error){
-alert("Erro ao salvar cliente");
-console.log(error);
+alert(error.message);
 return;
 }
 
@@ -221,14 +174,14 @@ if(!confirm("Deseja excluir este cliente?")){
 return;
 }
 
-const { error } = await supabase
+const { error } =
+await banco
 .from("clientes")
 .delete()
 .eq("id", id);
 
 if(error){
-alert("Erro ao excluir cliente");
-console.log(error);
+alert(error.message);
 return;
 }
 
@@ -243,7 +196,8 @@ document.getElementById("pesquisa")
 .value
 .toLowerCase();
 
-const { data, error } = await supabase
+const { data, error } =
+await banco
 .from("clientes")
 .select("*")
 .order("id",{ascending:false});
@@ -277,43 +231,52 @@ clientes = clientes.filter(cliente =>
 
 let html = "";
 
-clientes.forEach(cliente=>{
+clientes.forEach(cliente => {
 
 html += `
-<tr>
 
-<td>${cliente.nome || ""}</td>
+<tr><td>${cliente.nome || ""}</td><td>${formatarCPF(cliente.cpf || "")}</td>
 
-<td>${cliente.cpf || ""}</td>
-
-<td>${cliente.telefone || ""}</td>
-
-<td>
-
-<button
+<td>${formatarTelefone(cliente.telefone || "")}</td> || ""}</td><td><button
 class="btn-remover"
 onclick="excluirCliente(${cliente.id})">
 
 Excluir
 
-</button>
-
-</td>
-
-</tr>
-`;
-
-});
+</button></td></tr>
+`;});
 
 document.getElementById(
 "listaClientes"
 ).innerHTML = html;
 
 }
+function formatarCPF(cpf){
 
+cpf = cpf.replace(/\D/g,'');
+
+if(cpf.length !== 11) return cpf;
+
+return cpf.replace(
+/(\d{3})(\d{3})(\d{3})(\d{2})/,
+'$1.$2.$3-$4'
+);
+
+}
+
+function formatarTelefone(telefone){
+
+telefone = telefone.replace(/\D/g,'');
+
+if(telefone.length !== 11) return telefone;
+
+return telefone.replace(
+/(\d{2})(\d{5})(\d{4})/,
+'($1) $2-$3'
+);
+
+}
 listarClientes();
 
-</script>
-
-</body>
+</script></body>
 </html>
