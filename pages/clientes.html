@@ -1,6 +1,13 @@
-<!DOCTYPE html><html lang="pt-BR"><head>
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Krauser Gestão - Clientes</title><style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Krauser Gestão - Clientes</title>
+
+<style>
 
 *{
 margin:0;
@@ -91,192 +98,258 @@ text-align:center;
 margin-bottom:15px;
 }
 
-</style></head><body><div class="topo">
+</style>
+</head>
+
+<body>
+
+<div class="topo">
 <h2>Krauser Gestão - Clientes</h2>
-</div><div class="container"><div class="card"><h3>Novo Cliente</h3><div class="grid"><input id="nome" placeholder="Nome Completo"><input id="cpf" placeholder="000.000.000-00"><input id="telefone" placeholder="(00) 00000-0000"></div><br><button class="btn" onclick="salvarCliente()">
+</div>
+
+<div class="container">
+
+<div class="card">
+
+<h3>Novo Cliente</h3>
+
+<div class="grid">
+
+<input
+id="nome"
+placeholder="Nome Completo">
+
+<input
+id="cpf"
+placeholder="000.000.000-00"
+maxlength="14">
+
+<input
+id="telefone"
+placeholder="(00) 00000-0000"
+maxlength="15">
+
+</div>
+
+<br>
+
+<button
+class="btn"
+onclick="salvarCliente()">
+
 💾 Salvar Cliente
-</button></div><div class="card"><h3>Pesquisar Cliente</h3><input
+
+</button>
+
+</div>
+
+<div class="card">
+
+<h3>Pesquisar Cliente</h3>
+
+<input
 class="pesquisa"
 id="pesquisa"
 placeholder="Pesquisar por nome, CPF ou telefone"
 onkeyup="listarClientes()">
 
-<table><thead>
+<table>
+
+<thead>
+
 <tr>
 <th>Nome</th>
 <th>CPF</th>
 <th>Telefone</th>
 <th>Ação</th>
 </tr>
-</thead><tbody id="listaClientes"></tbody></table></div></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
 
-const supabaseUrl =
-"https://fdqdbqoljhpzwlkgyddt.supabase.co";
+</thead>
 
-const supabaseKey =
-"sb_publishable_d0pxxCOcLcLLcsmBxy0A0g_T805lPUg";
+<tbody id="listaClientes">
 
-const banco =
-window.supabase.createClient(
-supabaseUrl,
-supabaseKey
-);
+</tbody>
 
-async function salvarCliente(){
+</table>
 
-const nome =
-document.getElementById("nome").value.trim();
+</div>
 
-const cpf =
-document.getElementById("cpf").value.trim();
+</div>
 
-const telefone =
-document.getElementById("telefone").value.trim();
+<!DOCTYPE html>
+<html lang="pt-BR">
 
-if(nome === ""){
-alert("Informe o nome do cliente");
-return;
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Krauser Gestão - Clientes</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
 }
 
-const { data, error } =
-await banco
-.from("clientes")
-.insert([
-{
-nome,
-cpf,
-telefone
-}
-])
-.select();
-
-console.log(data);
-console.log(error);
-
-if(error){
-alert(error.message);
-return;
+body{
+background:#f4f6f9;
 }
 
-document.getElementById("nome").value = "";
-document.getElementById("cpf").value = "";
-document.getElementById("telefone").value = "";
-
-alert("Cliente cadastrado com sucesso!");
-
-listarClientes();
-
+.topo{
+background:#0B3D91;
+color:white;
+padding:15px;
+display:flex;
+justify-content:space-between;
+align-items:center;
 }
 
-async function excluirCliente(id){
-
-if(!confirm("Deseja excluir este cliente?")){
-return;
+.container{
+padding:20px;
+max-width:1400px;
+margin:auto;
 }
 
-const { error } =
-await banco
-.from("clientes")
-.delete()
-.eq("id", id);
-
-if(error){
-alert(error.message);
-return;
+.card{
+background:white;
+padding:15px;
+border-radius:12px;
+margin-bottom:15px;
+box-shadow:0 2px 8px rgba(0,0,0,.08);
 }
 
-listarClientes();
-
+h3{
+color:#0B3D91;
+margin-bottom:10px;
 }
 
-async function listarClientes(){
-
-const pesquisa =
-document.getElementById("pesquisa")
-.value
-.toLowerCase();
-
-const { data, error } =
-await banco
-.from("clientes")
-.select("*")
-.order("id",{ascending:false});
-
-if(error){
-console.log(error);
-return;
+input{
+width:100%;
+padding:10px;
+border:1px solid #ccc;
+border-radius:8px;
 }
 
-let clientes = data || [];
-
-clientes = clientes.filter(cliente =>
-
-(cliente.nome || "")
-.toLowerCase()
-.includes(pesquisa)
-
-||
-
-(cliente.cpf || "")
-.toLowerCase()
-.includes(pesquisa)
-
-||
-
-(cliente.telefone || "")
-.toLowerCase()
-.includes(pesquisa)
-
-);
-
-let html = "";
-
-clientes.forEach(cliente => {
-
-html += `
-
-<tr><td>${cliente.nome || ""}</td><td>${formatarCPF(cliente.cpf || "")}</td>
-
-<td>${formatarTelefone(cliente.telefone || "")}</td> || ""}</td><td><button
-class="btn-remover"
-onclick="excluirCliente(${cliente.id})">
-
-Excluir
-
-</button></td></tr>
-`;});
-
-document.getElementById(
-"listaClientes"
-).innerHTML = html;
-
-}
-function formatarCPF(cpf){
-
-cpf = cpf.replace(/\D/g,'');
-
-if(cpf.length !== 11) return cpf;
-
-return cpf.replace(
-/(\d{3})(\d{3})(\d{3})(\d{2})/,
-'$1.$2.$3-$4'
-);
-
+button{
+border:none;
+padding:10px 15px;
+border-radius:8px;
+cursor:pointer;
 }
 
-function formatarTelefone(telefone){
-
-telefone = telefone.replace(/\D/g,'');
-
-if(telefone.length !== 11) return telefone;
-
-return telefone.replace(
-/(\d{2})(\d{5})(\d{4})/,
-'($1) $2-$3'
-);
-
+.btn{
+background:#F29C1F;
+color:white;
 }
-listarClientes();
 
-</script></body>
-</html>
+.btn-remover{
+background:#dc3545;
+color:white;
+}
+
+.grid{
+display:grid;
+grid-template-columns:2fr 1fr 1fr;
+gap:10px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th{
+background:#0B3D91;
+color:white;
+}
+
+th,td{
+border:1px solid #ddd;
+padding:10px;
+text-align:center;
+}
+
+.pesquisa{
+margin-bottom:15px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="topo">
+<h2>Krauser Gestão - Clientes</h2>
+</div>
+
+<div class="container">
+
+<div class="card">
+
+<h3>Novo Cliente</h3>
+
+<div class="grid">
+
+<input
+id="nome"
+placeholder="Nome Completo">
+
+<input
+id="cpf"
+placeholder="000.000.000-00"
+maxlength="14">
+
+<input
+id="telefone"
+placeholder="(00) 00000-0000"
+maxlength="15">
+
+</div>
+
+<br>
+
+<button
+class="btn"
+onclick="salvarCliente()">
+
+💾 Salvar Cliente
+
+</button>
+
+</div>
+
+<div class="card">
+
+<h3>Pesquisar Cliente</h3>
+
+<input
+class="pesquisa"
+id="pesquisa"
+placeholder="Pesquisar por nome, CPF ou telefone"
+onkeyup="listarClientes()">
+
+<table>
+
+<thead>
+
+<tr>
+<th>Nome</th>
+<th>CPF</th>
+<th>Telefone</th>
+<th>Ação</th>
+</tr>
+
+</thead>
+
+<tbody id="listaClientes">
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
