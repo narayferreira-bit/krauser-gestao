@@ -174,182 +174,265 @@ onkeyup="listarClientes()">
 
 </div>
 
-</div>
+</div>                                                                                                                      
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<!DOCTYPE html>
-<html lang="pt-BR">
+<script>
 
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+const supabaseUrl =
+"https://fdqdbqoljhpzwlkgyddt.supabase.co";
 
-<title>Krauser Gestão - Clientes</title>
+const supabaseKey =
+"sb_publishable_d0pxxCOcLcLLcsmBxy0A0g_T805lPUg";
 
-<style>
+const supabase =
+window.supabase.createClient(
+supabaseUrl,
+supabaseKey
+);
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
+function formatarCPF(valor){
+
+valor = valor.replace(/\D/g,'');
+
+valor = valor.replace(
+/(\d{3})(\d)/,
+'$1.$2'
+);
+
+valor = valor.replace(
+/(\d{3})(\d)/,
+'$1.$2'
+);
+
+valor = valor.replace(
+/(\d{3})(\d{1,2})$/,
+'$1-$2'
+);
+
+return valor;
+
 }
 
-body{
-background:#f4f6f9;
+function formatarTelefone(valor){
+
+valor = valor.replace(/\D/g,'');
+
+valor = valor.replace(
+/(\d{2})(\d)/,
+'($1) $2'
+);
+
+valor = valor.replace(
+/(\d{5})(\d)/,
+'$1-$2'
+);
+
+return valor;
+
 }
 
-.topo{
-background:#0B3D91;
-color:white;
-padding:15px;
-display:flex;
-justify-content:space-between;
-align-items:center;
+document
+.getElementById("cpf")
+.addEventListener("input",function(){
+
+this.value =
+formatarCPF(this.value);
+
+});
+
+document
+.getElementById("telefone")
+.addEventListener("input",function(){
+
+this.value =
+formatarTelefone(this.value);
+
+});
+
+async function salvarCliente(){
+
+const nome =
+document.getElementById("nome")
+.value
+.trim();
+
+const cpf =
+document.getElementById("cpf")
+.value
+.trim();
+
+const telefone =
+document.getElementById("telefone")
+.value
+.trim();
+
+if(nome === ""){
+
+alert(
+"Informe o nome do cliente"
+);
+
+return;
+
 }
 
-.container{
-padding:20px;
-max-width:1400px;
-margin:auto;
+const { error } =
+await supabase
+.from("clientes")
+.insert([
+{
+nome,
+cpf,
+telefone
+}
+]);
+
+if(error){
+
+console.error(error);
+
+alert(
+"Erro ao salvar cliente"
+);
+
+return;
+
 }
 
-.card{
-background:white;
-padding:15px;
-border-radius:12px;
-margin-bottom:15px;
-box-shadow:0 2px 8px rgba(0,0,0,.08);
+document.getElementById("nome").value="";
+document.getElementById("cpf").value="";
+document.getElementById("telefone").value="";
+
+alert(
+"Cliente cadastrado com sucesso!"
+);
+
+listarClientes();
+
 }
 
-h3{
-color:#0B3D91;
-margin-bottom:10px;
+async function excluirCliente(id){
+
+if(
+!confirm(
+"Deseja excluir este cliente?"
+)
+){
+return;
 }
 
-input{
-width:100%;
-padding:10px;
-border:1px solid #ccc;
-border-radius:8px;
+const { error } =
+await supabase
+.from("clientes")
+.delete()
+.eq("id", id);
+
+if(error){
+
+console.error(error);
+
+alert(
+"Erro ao excluir cliente"
+);
+
+return;
+
 }
 
-button{
-border:none;
-padding:10px 15px;
-border-radius:8px;
-cursor:pointer;
+listarClientes();
+
 }
 
-.btn{
-background:#F29C1F;
-color:white;
+async function listarClientes(){
+
+const pesquisa =
+document
+.getElementById("pesquisa")
+.value
+.toLowerCase();
+
+const { data, error } =
+await supabase
+.from("clientes")
+.select("*")
+.order("id", {
+ascending:false
+});
+
+if(error){
+
+console.error(error);
+
+return;
+
 }
 
-.btn-remover{
-background:#dc3545;
-color:white;
-}
+let clientes =
+data || [];
 
-.grid{
-display:grid;
-grid-template-columns:2fr 1fr 1fr;
-gap:10px;
-}
+clientes =
+clientes.filter(cliente =>
 
-table{
-width:100%;
-border-collapse:collapse;
-}
+(cliente.nome || "")
+.toLowerCase()
+.includes(pesquisa)
 
-th{
-background:#0B3D91;
-color:white;
-}
+||
 
-th,td{
-border:1px solid #ddd;
-padding:10px;
-text-align:center;
-}
+(cliente.cpf || "")
+.toLowerCase()
+.includes(pesquisa)
 
-.pesquisa{
-margin-bottom:15px;
-}
+||
 
-</style>
-</head>
+(cliente.telefone || "")
+.toLowerCase()
+.includes(pesquisa)
 
-<body>
+);
 
-<div class="topo">
-<h2>Krauser Gestão - Clientes</h2>
-</div>
+let html = "";
 
-<div class="container">
+clientes.forEach(cliente => {
 
-<div class="card">
+html += `
 
-<h3>Novo Cliente</h3>
+<tr>
 
-<div class="grid">
+<td>${cliente.nome || ""}</td>
 
-<input
-id="nome"
-placeholder="Nome Completo">
+<td>${cliente.cpf || ""}</td>
 
-<input
-id="cpf"
-placeholder="000.000.000-00"
-maxlength="14">
+<td>${cliente.telefone || ""}</td>
 
-<input
-id="telefone"
-placeholder="(00) 00000-0000"
-maxlength="15">
-
-</div>
-
-<br>
+<td>
 
 <button
-class="btn"
-onclick="salvarCliente()">
+class="btn-remover"
+onclick="excluirCliente(${cliente.id})">
 
-💾 Salvar Cliente
+Excluir
 
 </button>
 
-</div>
+</td>
 
-<div class="card">
-
-<h3>Pesquisar Cliente</h3>
-
-<input
-class="pesquisa"
-id="pesquisa"
-placeholder="Pesquisar por nome, CPF ou telefone"
-onkeyup="listarClientes()">
-
-<table>
-
-<thead>
-
-<tr>
-<th>Nome</th>
-<th>CPF</th>
-<th>Telefone</th>
-<th>Ação</th>
 </tr>
 
-</thead>
+`;
 
-<tbody id="listaClientes">
+});
 
-</tbody>
+document
+.getElementById("listaClientes")
+.innerHTML = html;
 
-</table>
+}
 
-</div>
+listarClientes();
 
-</div>
+</script>
+
+</body>
+</html>
