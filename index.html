@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Krauser Gestão</title>
+
+<style>
+
+body{
+    margin:0;
+    padding:0;
+    font-family:Arial, sans-serif;
+    background:#0B3D91;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+.login-box{
+    background:white;
+    padding:30px;
+    border-radius:15px;
+    width:350px;
+    box-shadow:0 0 20px rgba(0,0,0,0.2);
+    text-align:center;
+}
+
+h1{
+    color:#0B3D91;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border:1px solid #ccc;
+    border-radius:8px;
+    box-sizing:border-box;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    margin-top:15px;
+    background:#FF9800;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
+}
+
+button:hover{
+    opacity:0.9;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="login-box">
+
+<img src="assets/logo.png" alt="Logo Krauser" style="width:220px; display:block; margin:0 auto 20px;">
+
+<h1>Krauser Gestão</h1>
+
+<p>Sistema de Controle</p>
+
+<input type="text" id="usuario" placeholder="Usuário">
+
+<input type="password" id="senha" placeholder="Senha">
+
+<button id="btnEntrar">Entrar</button>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+const supabaseUrl = 'https://fdqdbqoljhpzwlkgyddt.supabase.co';
+
+const supabaseKey = 'sb_publishable_d0pxxCOcLcLLcsmBxy0A0g_T805lPUg';
+
+const banco = window.supabase.createClient(
+    supabaseUrl,
+    supabaseKey
+);
+
+document.getElementById("btnEntrar").addEventListener("click", async () => {
+
+    const usuario = document.getElementById("usuario").value;
+    const senha = document.getElementById("senha").value;
+
+    const { data, error } = await banco
+        .from("usuarios")
+        .select("*")
+        .eq("usuario", usuario)
+        .eq("senha", senha)
+        .single();
+
+    if(data){
+        localStorage.setItem("usuario", usuario);
+        window.location.href = "dashboard.html";
+    }else{
+        alert("Usuário ou senha inválidos");
+        console.log(error);
+    }
+
+});
+
+</script>
+
+</body>
+</html>
